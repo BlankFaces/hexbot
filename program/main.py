@@ -1,4 +1,7 @@
+#TODO: need to create a way of allowing users to add a seed
+
 # Import libraries
+import time # Used to find how fast the program was
 import json # Parse JSON from API
 import certifi # SSL Verification
 import urllib3 # Interact with API
@@ -6,7 +9,9 @@ from PIL import Image # Used to create the images
 import struct
 
 # Makes a image size of 100*100 pixels
-img = Image.new('RGB', (99, 99))
+w = 99
+h = 99
+img = Image.new('RGB', (w, h))
 
 # Starts up a manager, uses ssl
 http = urllib3.PoolManager(
@@ -22,6 +27,13 @@ def getRGB(_hex):
 def hexToInt(_hex):
     _hex = _hex.lstrip('#')
     return int(_hex, 16)
+
+# Enlarges the image using nearest neighbour, saves as png
+def enlarge(img, newWidth, name):
+    wpercent = (newWidth / float(img.size[0]))
+    hsize = int((float(img.size[1]) * float(wpercent)))
+    img = img.resize((newWidth, hsize), Image.NEAREST)
+    img.save(name + ".png")
 
 # Generates a blocks of colours as png from api
 def genBlock():
@@ -42,8 +54,8 @@ def genBlock():
 
         # Create blank image, loop though all coordanates of it and set to hex code
         pixels = img.load()
-        for x in range(99):
-            for y in range(99):
+        for y in range(h):
+            for x in range(w):
                 pixels[x, y] = _rgb
 
         # Saves image, displays location
@@ -51,63 +63,57 @@ def genBlock():
         print("blocks/" + _hex + ".png\n")
 
 # Gets many values from api, sorts them
-def colourSorter():
-    # The vars to set dimentions of the array
-    w = 99
-    h = 99
-
-    # Creates blank image, sets vars
-    pixels = img.load()
+def gradientMany():
+    # Vars 
+    pixels = img.load()  # Loads var img into pixels
+    # Creates array size of image
     arrPixels = [[0 for x in range(w)] for y in range(h)]
+    # Empty array to store colours
     colours = []
+    # Used to find position within colours
     count = 0
+
+    # Starts timer
+    start_time = time.time()
 
     # Gets 10,000 pixels and puts it into array
     for i in range(10):
         # &seed=FF7F50,FFD700,FF8C00
-        request = 'https://api.noopschallenge.com/hexbot?count=1000&seed=FF7F50,FFD700,FF8C00'
+        request = 'https://api.noopschallenge.com/hexbot?count=1000'
         response = http.request('GET', request)
         jsonData = json.loads(response.data)
 
+        # Gets every hex value from json data
         for hexValue in (jsonData['colors']):
             colours.append(hexValue['value'])
 
     # Loops through the array pixels, assigns it a value and adds colour to image
-    for y in range(99):
-        for x in range (99):
+    for y in range(h):
+        for x in range (w):
             arrPixels[x][y] = hexToInt(colours[count]) # needs to be int so it can be sorted easily
             rgb = getRGB(colours[count])
             pixels[x, y] = rgb
             count += 1
 
-    # Saves and shows image
-    img.save("unsorted.png")
-    img.show()
+    # SHow how long it took to generate
+    print("Generated in %s seconds!" % (time.time() - start_time))
 
-    # Sorting algo
-    """
-    static int sortRowWise(int m[][]) 
-    { 
-        // loop for rows of matrix 
-        for (int i = 0; i < m.length; i++) { 
-            // loop for column of matrix 
-            for (int j = 0; j < m[i].length; j++) { 
-                // loop for comparison and swapping 
-                for (int k = 0; k < m[i].length - j; k++) { 
-                    if (m[i][k] > m[i][k + 1]) { 
-                        // swapping of elements 
-                        int t = m[i][k]; 
-                        m[i][k] = m[i][k + 1]; 
-                        m[i][k + 1] = t; 
-                    } 
-                } 
-            } 
-        } 
-    """
+    # Saves image, start timer
+    enlarge(img, 1000, "unsorted")
+    start_time = time.time()
+
+    # Bubble sort on 2d array
+    for i in range(len(arrPixels)):
+        for j in range(len(arrPixels[i])):
+            for k in range(len(arrPixels[i]) -1 - j):
+                if arrPixels[i][k] > arrPixels[i][k+1]:
+                    t = arrPixels[i][k]
+                    arrPixels[i][k] = arrPixels[i][k + 1]
+                    arrPixels[i][k + 1] = t
 
     # Loops through array, getting rgb values and setting image pixels to that
-    for y in range(99):
-        for x in range(99):
+    for y in range(h):
+        for x in range(w):
             # Get int value from array
             val = arrPixels[x][y]
             # Get hex from val
@@ -126,9 +132,11 @@ def colourSorter():
             # Sets pixel to value
             pixels[x, y] = rgb
 
-    # shows the image
-    img.save("sorted.png")
-    img.show()
+    # Prints the time it took to generate
+    print("Sorted in %s seconds!" % (time.time() - start_time))
+
+    # Saves image
+    enlarge(img, 1000, "sorted")
 
 def gradientTwo():
     print()
@@ -143,4 +151,4 @@ if __name__ == '__main__':
     if option == "1":
         genBlock()
     elif option == "2":
-        colourSorter()
+        gradientMany()
