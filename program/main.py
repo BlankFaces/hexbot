@@ -187,9 +187,9 @@ def gradient(sortType):
 
     # Saves image
     if sortType is "bubble":
-        enlarge(img, 1000, "gradients/glitch/sorted-" + values, False)
+        enlarge(img, 1000, "gradients/glitch/sorted-" + values, True)
     elif sortType is "numpy":
-        enlarge(img, 1000, "gradients/two/sorted-" + values, False)
+        enlarge(img, 1000, "gradients/two/sorted-" + values, True)
 
 def plot3D():
     print()
