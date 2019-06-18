@@ -41,7 +41,7 @@ def getRGB(_hex):
 
 # Gets int value of hex string
 def hexToInt(_hex):
-    _hex = _hex.cdlstrip('#')
+    _hex = _hex.lstrip('#')
     return int(_hex, 16)
 
 
@@ -57,9 +57,9 @@ def enlarge(img, newWidth, name, doOpen):
 
 # Sorts 2D array using bubble sort
 def bubble2D(sortList):
-    for i in range(len(sortList)):  # x loop
-        for j in range(len(sortList[i])):  # y loop
-            for k in range(len(sortList[i]) - 1 - j):  # gets next row
+    for i in range(w):  # x loop
+        for j in range(h):  # y loop
+            for k in range(h - 1):  # gets next row
                 # If left bigger than right value, switch
                 if sortList[i][k] > sortList[i][k+1]:
                     t = sortList[i][k]
@@ -106,7 +106,8 @@ def gradientMany():
     # Gets 10,000 pixels and puts it into array
     for i in range(10):
         # &seed=FF7F50,FFD700,FF8C00
-        request = 'https://api.noopschallenge.com/hexbot?count=1000&seed=FF7F50,FFD700,FF8C00'
+        # Tetradic color: 89f0aa,89cff0,f089cf,f0aa89 pattern within
+        request = 'https://api.noopschallenge.com/hexbot?count=1000&seed=89f0aa,89cff0,f089cf,f0aa89'
         response = http.request('GET', request)
         jsonData = json.loads(response.data)
 
