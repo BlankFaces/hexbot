@@ -35,11 +35,13 @@ def hexToInt(_hex):
     return int(_hex, 16)
 
 # Enlarges the image using nearest neighbour, saves as png
-def enlarge(img, newWidth, name):
+def enlarge(img, newWidth, name, doOpen):
     wpercent = (newWidth / float(img.size[0]))
     hsize = int((float(img.size[1]) * float(wpercent)))
     img = img.resize((newWidth, hsize), Image.NEAREST)
     img.save("%s/%s.png" % (d, name))
+    if doOpen:
+        img.show()
 
 # Generates a blocks of colours as png from api
 def genBlock():
@@ -105,7 +107,7 @@ def gradientMany():
     print("Generated in %s seconds!" % (time.time() - start_time))
 
     # Saves image, start timer
-    enlarge(img, 1000, "unsorted")
+    enlarge(img, 1000, "unsorted", False)
     start_time = time.time()
 
     # Bubble sort on 2d array
@@ -143,7 +145,7 @@ def gradientMany():
     print("Sorted in %s seconds!" % (time.time() - start_time))
 
     # Saves image
-    enlarge(img, 1000, "sorted")
+    enlarge(img, 1000, "sorted", True)
 
 def gradientTwo():
     print()
