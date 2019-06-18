@@ -7,6 +7,7 @@ import certifi  # SSL Verification
 import urllib3  # Interact with API
 from PIL import Image  # Used to create the images
 import os  # Used to find directory
+import numpy  # Used to sort the 2D array
 
 # Gets location of instilation, checks if dir exists
 d = os.path.dirname(__file__)  # directory of script
@@ -59,19 +60,24 @@ def enlarge(img, newWidth, name, doOpen):
 def bubble2D(sortList):
     for i in range(w):  # x loop
         for j in range(h):  # y loop
-            for k in range(h - 1):  # gets next row
-                # If left bigger than right value, switch
-                if sortList[i][k] > sortList[i][k+1]:
-                    t = sortList[i][k]
-                    sortList[i][k] = sortList[i][k + 1]
-                    sortList[i][k + 1] = t
+                for k in range(h - 1):  # gets next row
+                    # If left bigger than right value, switch
+                    if sortList[i][k] > sortList[i][k+1]:
+                        t = sortList[i][k]
+                        sortList[i][k] = sortList[i][k + 1]
+                        sortList[i][k + 1] = t
+                        swapMade = True
     return sortList
 
+def numpySort(sortList):
+    sortList = numpy.sort(sortList, axis=0)
+    sortList = numpy.sort(sortList, axis=1)
+    return sortList
 
 # Generates a blocks of colours as png from api
-def genBlock():
+def genBlock(num):
     # Requests 100 values
-    jsonData = requestHex(100)
+    jsonData = requestHex(num)
 
     # For each hex code within colours
     for hexValue in (jsonData['colors']):
@@ -95,7 +101,7 @@ def genBlock():
 
 
 # Gets many values from api, sorts them
-def gradientMany():
+def gradientTwo(val1, val2):
     # Vars
     pixels = img.load()  # Loads var img into pixels
     arrPixels = [[0 for x in range(w)] for y in range(h)]  # Array size of image
@@ -107,7 +113,7 @@ def gradientMany():
     for i in range(10):
         # &seed=FF7F50,FFD700,FF8C00
         # Tetradic color: 89f0aa,89cff0,f089cf,f0aa89 pattern within
-        request = 'https://api.noopschallenge.com/hexbot?count=1000&seed=89f0aa,89cff0,f089cf,f0aa89'
+        request = 'https://api.noopschallenge.com/hexbot?count=1000&seed=%s,%s' % (val1, val2)
         response = http.request('GET', request)
         jsonData = json.loads(response.data)
 
@@ -132,7 +138,7 @@ def gradientMany():
     start_time = time.time()
 
     # Bubble sort on 2d array
-    arrPixels = bubble2D(arrPixels)
+    arrPixels = numpySort(arrPixels)
 
     # Loops through array, getting rgb values and setting image pixels to that
     for y in range(h):
@@ -159,23 +165,18 @@ def gradientMany():
     # Saves image
     enlarge(img, 1000, "sorted", True)
 
-
-def gradientTwo():
-    jsonData = requestHex(2)
-
-
 def plot3D():
     print()
 
 
 if __name__ == '__main__':
-    print("1 : Generate blocks of colours")
-    print("2 : Create gradient from many colours")
+    print("1 : Generate blocks of one colour")
+    print("2 : Create gradient from two colours")
     print()
 
     option = input("What would you like to do? ")
 
     if option == "1":
-        genBlock()
+        genBlock(input("How many blocks to save? "))
     elif option == "2":
-        gradientMany()
+        gradientTwo(input("Give first hex value: ").lstrip("#"), input("Give second hex value: ").lstrip("#"))

@@ -38,22 +38,14 @@ Still in development, but so far two functions have been created:
 
 This simply generates a 100*100 image and saves it into the blocks directory, just run the python file and enter 1, and they will be generated
 
-## Create gradient / sort pixels generated
+## Create from two values
 
 This funtion requests 10,000 hex values, saves them unsorted as image, then sorts the pixels in value. I will be adding option to add seed as this works the best with it.
 
-### No seed
+### Seed of FF7F50, FF8C00
 
 #### Unsorted
-![Unsorted No Seed Pixels](assets/unsortedNoSeed.png)
+![Unsorted Seed Pixels](assets/unsortedTwo.png)
 
 #### Sorted
-![Sorted No Seed Pixels](assets/sortedNoSeed.png)
-
-### Seed of FF7F50, FFD700, FF8C00
-
-#### Unsorted
-![Unsorted Seed Pixels](assets/unsortedSeed.png)
-
-#### Sorted
-![Sorted Seed Pixels](assets/sortedSeed.png)
+![Sorted Seed Pixels](assets/sortedTwo.png)
