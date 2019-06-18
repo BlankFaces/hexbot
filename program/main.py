@@ -1,12 +1,12 @@
-#TODO: need to create a way of allowing users to add a seed
+# TODO: need to create a way of allowing users to add a seed
 
 # Import libraries
-import time # Used to find how fast the program was
-import json # Parse JSON from API
-import certifi # SSL Verification
-import urllib3 # Interact with API
-from PIL import Image # Used to create the images
-import os
+import time  # Used to find how fast the program was
+import json  # Parse JSON from API
+import certifi  # SSL Verification
+import urllib3  # Interact with API
+from PIL import Image  # Used to create the images
+import os  # Used to find directory
 
 # Gets location of instilation, checks if dir exists
 d = os.path.dirname(__file__)  # directory of script
@@ -24,15 +24,26 @@ http = urllib3.PoolManager(
     cert_reqs='CERT_REQUIRED',
     ca_certs=certifi.where())
 
+
+# Requests a series of hex values
+def requestHex(quantity):
+    request = 'https://api.noopschallenge.com/hexbot?count=' + quantity
+    response = http.request('GET', request)
+    jsonData = json.loads(response.data)
+    return jsonData
+
+
 # Gets RGB value from hex
 def getRGB(_hex):
     _hex = _hex.lstrip('#')
     return tuple(int(_hex[i:i+2], 16) for i in (0, 2, 4))
 
+
 # Gets int value of hex string
 def hexToInt(_hex):
-    _hex = _hex.lstrip('#')
+    _hex = _hex.cdlstrip('#')
     return int(_hex, 16)
+
 
 # Enlarges the image using nearest neighbour, saves as png
 def enlarge(img, newWidth, name, doOpen):
@@ -43,12 +54,24 @@ def enlarge(img, newWidth, name, doOpen):
     if doOpen:
         img.show()
 
+
+# Sorts 2D array using bubble sort
+def bubble2D(sortList):
+    for i in range(len(sortList)):  # x loop
+        for j in range(len(sortList[i])):  # y loop
+            for k in range(len(sortList[i]) - 1 - j):  # gets next row
+                # If left bigger than right value, switch
+                if sortList[i][k] > sortList[i][k+1]:
+                    t = sortList[i][k]
+                    sortList[i][k] = sortList[i][k + 1]
+                    sortList[i][k + 1] = t
+    return sortList
+
+
 # Generates a blocks of colours as png from api
 def genBlock():
     # Requests 100 values
-    request = 'https://api.noopschallenge.com/hexbot?count=100'
-    response = http.request('GET', request)
-    jsonData = json.loads(response.data)
+    jsonData = requestHex(100)
 
     # For each hex code within colours
     for hexValue in (jsonData['colors']):
@@ -60,7 +83,7 @@ def genBlock():
         print('Hexadecimal = ', _hex)
         print('RGB = ', _rgb)
 
-        # Create blank image, loop though all coordanates of it and set to hex code
+        # Create blank image, loop though all pixels and set to hex code
         pixels = img.load()
         for y in range(h):
             for x in range(w):
@@ -70,19 +93,15 @@ def genBlock():
         img.save("%s/blocks/%s.png" % (d, _hex))
         print("blocks/" + _hex + ".png\n")
 
+
 # Gets many values from api, sorts them
 def gradientMany():
-    # Vars 
+    # Vars
     pixels = img.load()  # Loads var img into pixels
-    # Creates array size of image
-    arrPixels = [[0 for x in range(w)] for y in range(h)]
-    # Empty array to store colours
-    colours = []
-    # Used to find position within colours
-    count = 0
-
-    # Starts timer
-    start_time = time.time()
+    arrPixels = [[0 for x in range(w)] for y in range(h)]  # Array size of image
+    colours = []  # 2D array to store colours
+    count = 0  # Position in colours tracker
+    start_time = time.time()  # Starts timer
 
     # Gets 10,000 pixels and puts it into array
     for i in range(10):
@@ -97,13 +116,14 @@ def gradientMany():
 
     # Loops through the array pixels, assigns it a value and adds colour to image
     for y in range(h):
-        for x in range (w):
-            arrPixels[x][y] = hexToInt(colours[count]) # Needs to be int so it can be sorted easily
-            rgb = getRGB(colours[count]) # Gets the RGB value of the hex
-            pixels[x, y] = rgb # Sets the value
-            count += 1 # Iterates through colours
+        for x in range(w):
+            # Needs to be int so it can be sorted easily
+            arrPixels[x][y] = hexToInt(colours[count])
+            rgb = getRGB(colours[count])  # Gets the RGB value of the hex
+            pixels[x, y] = rgb  # Sets the value
+            count += 1  # Iterates through colours
 
-    # SHow how long it took to generate
+    # Show how long it took to generate
     print("Generated in %s seconds!" % (time.time() - start_time))
 
     # Saves image, start timer
@@ -111,14 +131,7 @@ def gradientMany():
     start_time = time.time()
 
     # Bubble sort on 2d array
-    for i in range(len(arrPixels)): # x loop
-        for j in range(len(arrPixels[i])): # y loop
-            for k in range(len(arrPixels[i]) -1 - j): # gets next row
-                # If left bigger than right value, switch
-                if arrPixels[i][k] > arrPixels[i][k+1]: 
-                    t = arrPixels[i][k]
-                    arrPixels[i][k] = arrPixels[i][k + 1]
-                    arrPixels[i][k + 1] = t
+    arrPixels = bubble2D(arrPixels)
 
     # Loops through array, getting rgb values and setting image pixels to that
     for y in range(h):
@@ -130,16 +143,14 @@ def gradientMany():
 
             # If not padded to 6 bytes add padding to it to be 6 bytes
             if len(_hex[2:]) < 6:
-                pad = 6 - len(_hex[2:]) # Get the amount to pad
-                tmp = _hex[2:] # Removes 0x
-                for i in range(pad): # Addds padding to temp
+                pad = 6 - len(_hex[2:])  # Get the amount to pad
+                tmp = _hex[2:]  # Removes 0x
+                for i in range(pad):  # Adds padding to temp
                     tmp = "0" + tmp
-                _hex = "0x" + tmp # aets hex value
+                _hex = "0x" + tmp  # Sets hex value
 
-            # Get rgb value of hex, gets rid of 0x
-            rgb = getRGB(_hex[2:])
-            # Sets pixel to value
-            pixels[x, y] = rgb
+            rgb = getRGB(_hex[2:])  # Removes 0x. gets rgb val
+            pixels[x, y] = rgb  # Sets pixel to value
 
     # Prints the time it took to generate
     print("Sorted in %s seconds!" % (time.time() - start_time))
@@ -147,17 +158,20 @@ def gradientMany():
     # Saves image
     enlarge(img, 1000, "sorted", True)
 
+
 def gradientTwo():
+    jsonData = requestHex(2)
+
+
+def plot3D():
     print()
 
-def threeDeePlot():
-    print()
 
 if __name__ == '__main__':
     print("1 : Generate blocks of colours")
     print("2 : Create gradient from many colours")
     print()
-    
+
     option = input("What would you like to do? ")
 
     if option == "1":
