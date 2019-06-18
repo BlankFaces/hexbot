@@ -1,4 +1,4 @@
-# TODO: need to create a way of allowing users to add a seed
+# TODO: Need to allow user to use glitch gradient, need to make smooth many gradient
 
 # Import libraries
 import time  # Used to find how fast the program was
@@ -11,9 +11,23 @@ import numpy  # Used to sort the 2D array
 
 # Gets location of instilation, checks if dir exists
 d = os.path.dirname(__file__)  # directory of script
-blockExists = os.path.isdir(d + "/blocks/")
+blockExists = os.path.isdir(d + "/blocks")
+gradientsExists = os.path.isdir(d + "/gradients")
+twoExists = os.path.isdir(d + "/gradients/two")
+glitchExists = os.path.isdir(d + "/gradients/glitch")
+
 if not blockExists:
     os.mkdir(d + "/blocks/")
+
+if not gradientsExists:
+    os.mkdir(d + "/gradients/")
+
+if not twoExists:
+    os.mkdir(d + "/gradients/two")
+
+if not glitchExists:
+    os.mkdir(d + "/gradients/glitch")
+
 
 # Makes a image size of 100*100 pixels
 w = 99
@@ -97,11 +111,10 @@ def genBlock(num):
 
         # Saves image, displays location
         img.save("%s/blocks/%s.png" % (d, _hex))
-        print("blocks/" + _hex + ".png\n")
 
 
 # Gets many values from api, sorts them
-def gradientTwo(val1, val2):
+def gradient(sortType):
     # Vars
     pixels = img.load()  # Loads var img into pixels
     arrPixels = [[0 for x in range(w)] for y in range(h)]  # Array size of image
@@ -109,11 +122,15 @@ def gradientTwo(val1, val2):
     count = 0  # Position in colours tracker
     start_time = time.time()  # Starts timer
 
+    values = input("Input hex values: ")
+    values = values.lstrip("#")
+    values = values.replace(" ", ",")
+
     # Gets 10,000 pixels and puts it into array
     for i in range(10):
         # &seed=FF7F50,FFD700,FF8C00
         # Tetradic color: 89f0aa,89cff0,f089cf,f0aa89 pattern within
-        request = 'https://api.noopschallenge.com/hexbot?count=1000&seed=%s,%s' % (val1, val2)
+        request = 'https://api.noopschallenge.com/hexbot?count=1000&seed=%s' % (values)
         response = http.request('GET', request)
         jsonData = json.loads(response.data)
 
@@ -134,11 +151,17 @@ def gradientTwo(val1, val2):
     print("Generated in %s seconds!" % (time.time() - start_time))
 
     # Saves image, start timer
-    enlarge(img, 1000, "unsorted", False)
+    if sortType is "bubble":
+        enlarge(img, 1000, "gradients/glitch/unsorted-" + values, False)
+    elif sortType is "numpy":
+        enlarge(img, 1000, "gradients/two/unsorted-" + values, False)
+
     start_time = time.time()
 
-    # Bubble sort on 2d array
-    arrPixels = numpySort(arrPixels)
+    if sortType is "numpy":
+        arrPixels = numpySort(arrPixels)
+    elif sortType is "bubble":
+        arrPixels = bubble2D(arrPixels)
 
     # Loops through array, getting rgb values and setting image pixels to that
     for y in range(h):
@@ -163,7 +186,10 @@ def gradientTwo(val1, val2):
     print("Sorted in %s seconds!" % (time.time() - start_time))
 
     # Saves image
-    enlarge(img, 1000, "sorted", True)
+    if sortType is "bubble":
+        enlarge(img, 1000, "gradients/glitch/sorted-" + values, False)
+    elif sortType is "numpy":
+        enlarge(img, 1000, "gradients/two/sorted-" + values, False)
 
 def plot3D():
     print()
@@ -172,11 +198,13 @@ def plot3D():
 if __name__ == '__main__':
     print("1 : Generate blocks of one colour")
     print("2 : Create gradient from two colours")
-    print()
+    print("3 : Glitch / Bad gradient")
 
     option = input("What would you like to do? ")
 
     if option == "1":
         genBlock(input("How many blocks to save? "))
     elif option == "2":
-        gradientTwo(input("Give first hex value: ").lstrip("#"), input("Give second hex value: ").lstrip("#"))
+        gradient("numpy")
+    elif option == "3":
+        gradient("bubble")
