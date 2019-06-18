@@ -39,15 +39,15 @@ This funtion requests 10,000 hex values, saves them unsorted as image, then sort
 ### No seed
 
 #### Unsorted
-![Unsorted No Seed Pixels](assets/unsortedNoSeed.png | width=750)
+![Unsorted No Seed Pixels](assets/unsortedNoSeed.png)
 
 #### Sorted
-![Sorted No Seed Pixels](assets/sortedNoSeed.png | width=750)
+![Sorted No Seed Pixels](assets/sortedNoSeed.png)
 
 ### Seed of FF7F50, FFD700, FF8C00
 
 #### Unsorted
-![Unsorted Seed Pixels](assets/unsortedSeed.png | width=750)
+![Unsorted Seed Pixels](assets/unsortedSeed.png)
 
 #### Sorted
-![Sorted Seed Pixels](assets/sortedSeed.png | width=750)
+![Sorted Seed Pixels](assets/sortedSeed.png)
