@@ -6,7 +6,13 @@ import json # Parse JSON from API
 import certifi # SSL Verification
 import urllib3 # Interact with API
 from PIL import Image # Used to create the images
-import struct
+import os
+
+# Gets location of instilation, checks if dir exists
+d = os.path.dirname(__file__)  # directory of script
+blockExists = os.path.isdir(d + "/blocks/")
+if not blockExists:
+    os.mkdir(d + "/blocks/")
 
 # Makes a image size of 100*100 pixels
 w = 99
@@ -33,7 +39,7 @@ def enlarge(img, newWidth, name):
     wpercent = (newWidth / float(img.size[0]))
     hsize = int((float(img.size[1]) * float(wpercent)))
     img = img.resize((newWidth, hsize), Image.NEAREST)
-    img.save(name + ".png")
+    img.save("%s/%s.png" % (d, name))
 
 # Generates a blocks of colours as png from api
 def genBlock():
@@ -59,7 +65,7 @@ def genBlock():
                 pixels[x, y] = _rgb
 
         # Saves image, displays location
-        img.save("blocks/" + _hex + ".png")
+        img.save("%s/blocks/%s.png" % (d, _hex))
         print("blocks/" + _hex + ".png\n")
 
 # Gets many values from api, sorts them
@@ -79,7 +85,7 @@ def gradientMany():
     # Gets 10,000 pixels and puts it into array
     for i in range(10):
         # &seed=FF7F50,FFD700,FF8C00
-        request = 'https://api.noopschallenge.com/hexbot?count=1000'
+        request = 'https://api.noopschallenge.com/hexbot?count=1000&seed=FF7F50,FFD700,FF8C00'
         response = http.request('GET', request)
         jsonData = json.loads(response.data)
 
@@ -90,10 +96,10 @@ def gradientMany():
     # Loops through the array pixels, assigns it a value and adds colour to image
     for y in range(h):
         for x in range (w):
-            arrPixels[x][y] = hexToInt(colours[count]) # needs to be int so it can be sorted easily
-            rgb = getRGB(colours[count])
-            pixels[x, y] = rgb
-            count += 1
+            arrPixels[x][y] = hexToInt(colours[count]) # Needs to be int so it can be sorted easily
+            rgb = getRGB(colours[count]) # Gets the RGB value of the hex
+            pixels[x, y] = rgb # Sets the value
+            count += 1 # Iterates through colours
 
     # SHow how long it took to generate
     print("Generated in %s seconds!" % (time.time() - start_time))
@@ -103,10 +109,11 @@ def gradientMany():
     start_time = time.time()
 
     # Bubble sort on 2d array
-    for i in range(len(arrPixels)):
-        for j in range(len(arrPixels[i])):
-            for k in range(len(arrPixels[i]) -1 - j):
-                if arrPixels[i][k] > arrPixels[i][k+1]:
+    for i in range(len(arrPixels)): # x loop
+        for j in range(len(arrPixels[i])): # y loop
+            for k in range(len(arrPixels[i]) -1 - j): # gets next row
+                # If left bigger than right value, switch
+                if arrPixels[i][k] > arrPixels[i][k+1]: 
                     t = arrPixels[i][k]
                     arrPixels[i][k] = arrPixels[i][k + 1]
                     arrPixels[i][k + 1] = t
@@ -121,13 +128,13 @@ def gradientMany():
 
             # If not padded to 6 bytes add padding to it to be 6 bytes
             if len(_hex[2:]) < 6:
-                pad = 6 - len(_hex[2:])
-                tmp = _hex[2:]
-                for i in range(pad):
+                pad = 6 - len(_hex[2:]) # Get the amount to pad
+                tmp = _hex[2:] # Removes 0x
+                for i in range(pad): # Addds padding to temp
                     tmp = "0" + tmp
-                _hex = "0x" + tmp
+                _hex = "0x" + tmp # aets hex value
 
-            # Get rgb value of hex
+            # Get rgb value of hex, gets rid of 0x
             rgb = getRGB(_hex[2:])
             # Sets pixel to value
             pixels[x, y] = rgb
@@ -139,6 +146,9 @@ def gradientMany():
     enlarge(img, 1000, "sorted")
 
 def gradientTwo():
+    print()
+
+def threeDeePlot():
     print()
 
 if __name__ == '__main__':
