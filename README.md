@@ -36,10 +36,18 @@ This simply generates a 100*100 image and saves it into the blocks directory, ju
 
 This funtion requests 10,000 hex values, saves them unsorted as image, then sorts the pixels in value. I will be adding option to add seed as this works the best with it.
 
-![Unsorted No Seed Pixels](assets/unsortedNoSeed.png "Unsorted no seed")
+### No seed
+
+Unsorted
+![Unsorted No Seed Pixels](assets/unsortedNoSeed.png)
+
+Sorted
 ![Sorted No Seed Pixels](assets/sortedNoSeed.png "Sorted no seed")
 
 ### Seed of FF7F50, FFD700, FF8C00
 
+Unsorted
 ![Unsorted Seed Pixels](assets/unsortedSeed.png "Unsorted seed")
+
+Sorted
 ![Sorted Seed Pixels](assets/sortedSeed.png "Sorted seed")
