@@ -4,6 +4,8 @@ This was a GitHub Noop Challenge, in this challenge they give you access to an A
 
 The original repo is here: https://github.com/noops-challenge/hexbot
 
+The updated repo is here: https://github.com/BlankFaces/concatBot
+
 The challenge is here: https://noopschallenge.com/challenges/hexbot
 
 This is my first time working with images, and API so excuse the crappie code please :))
